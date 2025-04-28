@@ -9,7 +9,8 @@
 #endif
 
 int usersize = 2;
-bool isadmin = 0;
+int UserID = 0;
+bool isadmin = false;
 std::string* LoginArr = new std::string[usersize]{ "a", "UserID1" };
 std::string* PassArr = new std::string[usersize]{ "a", "DefPass" };
 double *sellsArr = new double[usersize] {0.0, 0.0};
@@ -21,6 +22,30 @@ std::string* nameArr = new std::string[size];
 double* priceArr = new double[size];
 int* countArr = new int[size];
 
+int sizeCheck = 1;
+double cashbox = 0;
+double eIncome = 0;
+double cashIncome = 0;
+std::string* nameArrCheck = new std::string[sizeCheck];
+double* priceArrCheck = new double[sizeCheck];
+int* countArrCkeck = new int[sizeCheck];
+double* totalArrCheck = new double[sizeCheck];
+
+std::string* loyaltyCodes = nullptr;
+double* loyaltyDiscounts = nullptr;
+int sizeLoyalty = 0;
+
+int* idDiscountsArr = nullptr;
+double* idDiscountValues = nullptr;
+int sizeIdDiscounts = 0;
+
+std::string* loyaltyCardArr = nullptr;
+double* loyaltyCardDiscountArr = nullptr;
+int loyaltyCardArrSize = 0;
+
+int* idDiscountArr = nullptr;
+double* idDiscountPercentArr = nullptr;
+int idDiscountArrSize = 0;
 
 void Start();
 bool Login();
@@ -42,6 +67,13 @@ void AddNewEmployee();
 void DeleteEmployee();
 void EditEmployee();
 void LybovnikLavandovogoRafa();
+void Selling();
+void IncreaseCheckArr();
+void PrintCheck();
+void ResetCheck();
+void ShowIncome();
+void IncreaseStorage();
+void LichnoYaSchitayChtoZaEtoNadoDatTOPCoini();
 
 int GetID(int mode = 0);
 bool IsNumber(std::string &number);
@@ -62,6 +94,9 @@ int main()
 	delete[] priceArr;
 	delete[] countArr;
 	delete[] sellsArr;
+	delete[] nameArrCheck;
+	delete[] priceArrCheck;
+	delete[] countArrCkeck;
 	return 0;
 }
 
@@ -69,7 +104,7 @@ void Start()
 {
 	SetConsoleCP(1251);
 	SetConsoleOutputCP(1251);
-
+	srand(time(NULL));
 	std::cout << "\n\n\t\t\t TProd \n\n";
 	if (Login())
 	{
@@ -83,12 +118,14 @@ void Start()
 				if (choose == "1")
 				{
 					CreateStorage();
+					cashbox = rand() % 9499 + 16384;
 					ShowAdminMenu();
 					break;
 				}
 				else if (choose == "2")
 				{
 					LybovnikLavandovogoRafa();
+					cashbox = rand() % 9499 + 16384;
 					break;
 				}
 				else
@@ -122,6 +159,7 @@ bool Login()
 		if (login == LoginArr[0] && pass == PassArr[0])
 		{
 			isadmin = true;
+			UserID = 0;
 			std::cout << "Пользователь: " << LoginArr[0] << " - Добро пожаловать!\nСтатус: Админ\n\n";
 			return true;
 		}
@@ -131,6 +169,7 @@ bool Login()
 			if (login == LoginArr[i] && pass == PassArr[i])
 			{
 				isadmin = false;
+				UserID = i;
 				std::cout << "Пользователь: " << LoginArr[i] << " - Добро пожаловать!\nСтатус: Продавец\n\n";
 				return true;
 			}
@@ -179,13 +218,14 @@ void ShowAdminMenu()
 		std::cout << "6) Изменение склада\n";
 		std::cout << "7) Изменение персонала\n";
 		std::cout << "8) Отчёт о прибыли\n";
+		std::cout << "9) Контроль над скидками\n";
 		std::cout << "0) Закрыть смену\n";
 		std::cout << "Ввод: ";
 		Getline(choose);
 		if (choose == "1")
 		{
 			system("cls");
-
+			Selling();
 		}
 		else if (choose == "2")
 		{
@@ -221,6 +261,11 @@ void ShowAdminMenu()
 		{
 			system("cls");
 
+		}
+		else if (choose == "9")
+		{
+			system("cls");
+			LichnoYaSchitayChtoZaEtoNadoDatTOPCoini();
 		}
 		else if (choose == "0")
 		{
@@ -274,7 +319,6 @@ void ShowStorage(int mode)
 		}
 		std::cout << "\n\n";
 	}
-	system("pause");
 }
 
 void RefillProduct()
@@ -291,18 +335,22 @@ void RefillProduct()
 		{
 			ShowStorage(1);
 			id = GetID();
+			system("cls");
 			while (true)
 			{
 				std::cout << "Введите кол-во минут для пополнения: ";
 				Getline(chooseCount);
+				system("cls");
 				if (IsNumber(chooseCount))
 				{
 					count = std::stoi(chooseCount);
 					if (count >= 0 && count <= 50 && countArr[id - 1] < 50)
 					{
+						system("cls");
 						countArr[id - 1] += count;
 						std::cout << "Минут успешно пополнен\n";
 						Sleep(800);
+						system("cls");
 						break;
 					}
 					else
@@ -342,6 +390,7 @@ void RemoveProduct()
 		{
 			ShowStorage(1);
 			id = GetID();
+			system("cls");
 			while (true)
 			{
 				std::cout << "Введите кол-во минут для списания: ";
@@ -351,6 +400,7 @@ void RemoveProduct()
 					count = std::stoi(chooseCount);
 					if (count >= 0 && count <= countArr[id - 1])
 					{
+						system("cls");
 						countArr[id - 1] -= count;
 						std::cout << "Минуты успешно списан\n";
 						Sleep(800);
@@ -389,12 +439,14 @@ void ChangePrice()
 		system("cls");
 		std::cout << "Изменить цену?\n1) Да\n2) Выход\nВвод: ";
 		Getline(choose);
+		system("cls");
 		if (choose == "1")
 		{
 			ShowStorage(2);
 			id = GetID();
 			while (true)
 			{
+				system("cls");
 				std::cout << "Введите новую цену: ";
 				Getline(choosePrice);
 				if (IsNumber(choosePrice))
@@ -895,7 +947,8 @@ void EditEmployee()
 	}
 }
 
-void LybovnikLavandovogoRafa() {
+void LybovnikLavandovogoRafa()
+{
 	system("cls");
 	std::cout << "Создание склада для пиндосов и их любовников\n\n";
 
@@ -905,59 +958,75 @@ void LybovnikLavandovogoRafa() {
 	delete[] countArr;
 
 	size = 0;
-	idArr = new int[100];
-	nameArr = new std::string[100];
-	priceArr = new double[100];
-	countArr = new int[100];
+	idArr = nullptr;
+	nameArr = nullptr;
+	priceArr = nullptr;
+	countArr = nullptr;
 
 	std::string choose;
-	while (true) {
+	while (true)
+	{
+		if (idArr == nullptr)
+		{
+			idArr = new int[10];
+			nameArr = new std::string[10];
+			priceArr = new double[10];
+			countArr = new int[10];
+		}
+		else if (size % 10 == 0)
+		{
+			IncreaseStorage();
+		}
+
 		system("cls");
 		std::cout << "Текущее кол-во услуг: " << size << "\n\n";
-
 		std::cout << "Добавить услугу?\n1 - Да\n2 - Нет, я любовник лавандового рафа\nВвод: ";
 		Getline(choose);
+
 		if (choose != "1")
 			break;
 
 		idArr[size] = size + 1;
 
-		while (true) {
+		while (true)
+		{
 			system("cls");
-			std::cout << "Введите название услуги: ";
+			std::cout << "Введите название услуги (3-20 символов): ";
 			Getline(nameArr[size]);
-			if (nameArr[size].size() <= 20 && nameArr[size].size() >= 3) {
+			if (nameArr[size].size() >= 3 && nameArr[size].size() <= 20)
 				break;
-			}
+
 			std::cout << "Ошибка длины названия\n";
 			Sleep(1000);
 		}
 
 		std::string priceStr;
-		while (true) {
+		while (true)
+		{
 			system("cls");
 			std::cout << "Введите цену за минуту: ";
 			Getline(priceStr);
-			if (IsNumber(priceStr)) {
+			if (IsNumber(priceStr))
+			{
 				priceArr[size] = std::stod(priceStr);
-				if (priceArr[size] >= 0 && priceArr[size] <= 999999) {
+				if (priceArr[size] >= 0 && priceArr[size] <= 999999)
 					break;
-				}
 			}
-			std::cout << "Некорректная цена. !!!!!Ты дизайнер!!!!!\n";
+			std::cout << "Некорректная цена. !!!!!Ты любовник Лавандового Рафа!!!!!\n";
 			Sleep(1000);
 		}
 
 		std::string countStr;
-		while (true) {
+		while (true)
+		{
 			system("cls");
-			std::cout << "Введите кол-во минут: ";
+			std::cout << "Введите кол-во минут (1-50): ";
 			Getline(countStr);
-			if (IsNumber(countStr)) {
+			if (IsNumber(countStr))
+			{
 				countArr[size] = std::stoi(countStr);
-				if (countArr[size] >= 0 && countArr[size] <= 50) {
+				if (countArr[size] >= 0 && countArr[size] <= 50)
 					break;
-				}
 			}
 			std::cout << "Некорректное кол-во минут\n";
 			Sleep(1000);
@@ -972,15 +1041,605 @@ void LybovnikLavandovogoRafa() {
 	}
 
 	system("cls");
-	std::cout << "Склад любовников\n";
+	std::cout << "Склад любовников готов!\n";
 	ShowStorage();
 	system("pause");
+}
+
+void Selling()
+{
+	std::string choose;
+	int id = 0, count = 0;
+	bool isFirst = true, isBuy = true, isSold = false;
+	double totalSum = 0, cash = 0;
+	bool idDiscountApplied[100] = {false};
+	bool loyaltyDiscountApplied = false;
+
+	ResetCheck();
+
+	while (isBuy)
+	{
+		system("cls");
+		ShowStorage();
+		id = GetID();
+
+		while (true)
+		{
+			std::cout << "Введите кол-во минут услуги для покупки: ";
+			Getline(choose);
+			if (IsNumber(choose))
+			{
+				count = std::stoi(choose);
+				if (count > countArr[id - 1] || count < 1)
+				{
+					std::cout << "\n\nНекорректное кол-во\n\n";
+				}
+				else
+				{
+					break;
+				}
+			}
+			else
+			{
+				Error();
+			}
+		}
+
+		if (isFirst)
+		{
+			nameArrCheck[sizeCheck - 1] = nameArr[id - 1];
+			countArrCkeck[sizeCheck - 1] = count;
+			priceArrCheck[sizeCheck - 1] = priceArr[id - 1];
+			totalArrCheck[sizeCheck - 1] = count * priceArr[id - 1];
+			countArr[id - 1] -= count;
+			totalSum += count * priceArr[id - 1];
+			isFirst = false;
+		}
+		else
+		{
+			IncreaseCheckArr();
+			nameArrCheck[sizeCheck - 1] = nameArr[id - 1];
+			countArrCkeck[sizeCheck - 1] = count;
+			priceArrCheck[sizeCheck - 1] = priceArr[id - 1];
+			totalArrCheck[sizeCheck - 1] = count * priceArr[id - 1];
+			countArr[id - 1] -= count;
+			totalSum += count * priceArr[id - 1];
+		}
+
+		idDiscountApplied[id] = true;
+
+		while (true)
+		{
+			std::cout << "Купить ещё одну услугу?\n1 - Да\n2 - Нет\nВвод: ";
+			Getline(choose);
+			if (choose == "1")
+			{
+				break;
+			}
+			else if (choose == "2")
+			{
+				isBuy = false;
+				break;
+			}
+			else
+			{
+				Error();
+			}
+		}
+	}
+
+	while (!isSold)
+	{
+		system("cls");
+		PrintCheck();
+
+		for (int i = 0; i < idDiscountArrSize; i++)
+		{
+			if (idDiscountApplied[idDiscountArr[i]])
+			{
+				std::cout << "Скидка за покупку товара с ID " << idDiscountArr[i] << ": -" << idDiscountPercentArr[i] * 100 << "%\n";
+				totalSum *= (1.0 - idDiscountPercentArr[i]);
+			}
+		}
+
+		std::cout << "\n\nЕсть карта лояльности?\n1 - Да\n2 - Нет\nВвод: ";
+		Getline(choose);
+
+		if (choose == "1" && !loyaltyDiscountApplied)
+		{
+			std::cout << "Введите код карты: ";
+			Getline(choose);
+
+			bool found = false;
+			for (int i = 0; i < loyaltyCardArrSize; i++)
+			{
+				if (choose == loyaltyCardArr[i])
+				{
+					std::cout << "\nКарта подтверждена! Вам скидка " << loyaltyCardDiscountArr[i] * 100 << "%\n";
+					totalSum *= (1.0 - loyaltyCardDiscountArr[i]);
+					loyaltyDiscountApplied = true;
+					found = true;
+					Sleep(1000);
+					break;
+				}
+			}
+
+			if (!found)
+			{
+				std::cout << "\nНеверный код карты(\n";
+				Sleep(1000);
+			}
+		}
+		else if (choose == "1" && loyaltyDiscountApplied)
+		{
+			std::cout << "\nСкидка по карте уже применена!\n";
+			Sleep(1000);
+		}
+		else
+		{
+			Error();
+		}
+		 
+		std::cout << "\n\t\t\t\t\tИтог к оплате: " << totalSum << "\n\nВыберите способ оплаты\n1 - Наличные\n2 - Безналичные\nВвод: ";
+		Getline(choose);
+
+		if (choose == "1")
+		{
+			while (true)
+			{
+				std::cout << "Введите сумму наличных: ";
+				Getline(choose);
+				if (IsNumber(choose))
+				{
+					cash = std::stod(choose);
+					if (cash < totalSum)
+					{
+						std::cout << "\n\nНедостаточно средств!\n\n";
+					}
+					else
+					{
+						std::cout << "Оплата прошла успешно\nВаша сдача: " << cash - totalSum << "\n\n";
+						cashbox += totalSum;
+						cashIncome += totalSum;
+						sellsArr[UserID] += totalSum;
+						isSold = true;
+						Sleep(1000);
+						break;
+					}
+				}
+				else
+				{
+					Error();
+					Sleep(1000);
+				}
+			}
+		}
+		else if (choose == "2")
+		{
+			while (true)
+			{
+				std::cout << "Пожалуйста, приложите карту\n\n";
+				system("pause");
+				if (rand() % 10 <= 2)
+				{
+					for (int i = 0; i < 5; i++)
+					{
+						std::cout << i + 1 << " ";
+						Sleep(850);
+					}
+					std::cout << "\n\nОшибка соединения. Повторите попытку!\n\n";
+					Sleep(1300);
+					system("cls");
+				}
+				else
+				{
+					for (int i = 0; i < 5; i++)
+					{
+						std::cout << i + 1 << " ";
+						Sleep(850);
+					}
+					std::cout << "Оплата прошла успешно!\n\n";
+					eIncome += totalSum;
+					sellsArr[UserID] += totalSum;
+					isSold = true;
+					Sleep(1000);
+					break;
+				}
+			}
+		}
+		else
+		{
+			Error();
+		}
+	}
+}
+
+void IncreaseCheckArr()
+{
+	++sizeCheck;
+	std::string* nameArrCheckTemp = new std::string[sizeCheck];
+	double* priceArrCheckTemp = new double[sizeCheck];
+	int* countArrCkeckTemp = new int[sizeCheck];
+	double* totalArrCheckTemp = new double[sizeCheck];
+
+	for (int i = 0; i < sizeCheck; i++)
+	{
+		nameArrCheckTemp[i] = nameArrCheck[i];
+		priceArrCheckTemp[i] = priceArrCheck[i];
+		countArrCkeckTemp[i] = countArrCkeck[i];
+		totalArrCheckTemp[i] = totalArrCheck[i];
+	}
+
+	std::swap(nameArrCheck, nameArrCheckTemp);
+	std::swap(priceArrCheck, priceArrCheckTemp);
+	std::swap(countArrCkeck, countArrCkeckTemp);
+	std::swap(totalArrCheck, totalArrCheckTemp);
+
+	delete[] nameArrCheckTemp;
+	delete[] priceArrCheckTemp;
+	delete[] countArrCkeckTemp;
+	delete[] totalArrCheckTemp;
+}
+
+void PrintCheck()
+{
+	std::cout << "№\t" << std::left << std::setw(25) << "Название услуги\t" << "\t" << "Цена(За минуту)\t" << "Кол-во(Минут)\t" << "Итого:\n";
+	for (int i = 0; i < sizeCheck; i++)
+	{
+		std::cout << idArr[i] << "\t" << std::left << std::setw(25) << nameArrCheck[i] << "\t" << priceArrCheck[i] << "\t" << "\t    " << countArrCkeck[i] << "\n" << totalArrCheck << "\n";
+	}
+	std::cout << "\n\n";
+}
+
+void ResetCheck()
+{
+	sizeCheck = 1;
+	delete[] nameArrCheck;
+	delete[] priceArrCheck;
+	delete[] countArrCkeck;
+	delete[] totalArrCheck;
+
+	nameArrCheck = new std::string[sizeCheck];
+	priceArrCheck = new double[sizeCheck];
+	countArrCkeck = new int[sizeCheck];
+	totalArrCheck = new double[sizeCheck];
+}
+
+void ShowIncome()
+{
+	system("cls");
+	std::cout << "Наличные в кассе: " << cashbox << "\n\nПрибыль за наличные: " << cashIncome << "\nПрибыль за безналичные: " << eIncome << "\n\nИтоговая прибыль за смену: " << cashIncome + eIncome << "\nВаши продажи: " << sellsArr[UserID] << "\n\n\n";
+	system("pause");
+}
+
+void IncreaseStorage()
+{
+	const int expandBy = 10; //Сделано по рекомендации ChatGPT
+	int* newIdArr = new int[size + expandBy];
+	std::string* newNameArr = new std::string[size + expandBy];
+	double* newPriceArr = new double[size + expandBy];
+	int* newCountArr = new int[size + expandBy];
+
+	for (int i = 0; i < size; ++i)
+	{
+		newIdArr[i] = idArr[i];
+		newNameArr[i] = nameArr[i];
+		newPriceArr[i] = priceArr[i];
+		newCountArr[i] = countArr[i];
+	}
+
+	delete[] idArr;
+	delete[] nameArr;
+	delete[] priceArr;
+	delete[] countArr;
+
+	idArr = newIdArr;
+	nameArr = newNameArr;
+	priceArr = newPriceArr;
+	countArr = newCountArr;
+}
+
+void InitDiscounts()
+{
+	loyaltyCodes = nullptr;
+	loyaltyDiscounts = nullptr;
+	sizeLoyalty = 0;
+
+	idDiscountsArr = nullptr;
+	idDiscountValues = nullptr;
+	sizeIdDiscounts = 0;
+}
+
+void AddLoyaltyCard(std::string code, double discount)
+{
+	std::string* newCodes = new std::string[sizeLoyalty + 1];
+	double* newDiscounts = new double[sizeLoyalty + 1];
+
+	for (int i = 0; i < sizeLoyalty; i++)
+	{
+		newCodes[i] = loyaltyCodes[i];
+		newDiscounts[i] = loyaltyDiscounts[i];
+	}
+
+	newCodes[loyaltyCardArrSize] = code;
+	newDiscounts[sizeLoyalty] = discount;
+
+	delete[] loyaltyCodes;
+	delete[] loyaltyDiscounts;
+
+	loyaltyCodes = newCodes;
+	loyaltyDiscounts = newDiscounts;
+	sizeLoyalty++;
+}
+
+void DeleteLoyaltyCard(std::string code)
+{
+	int index = -1;
+	for (int i = 0; i < sizeLoyalty; i++)
+	{
+		if (loyaltyCodes[i] == code)
+		{
+			index = i;
+			break;
+		}
+	}
+	if (index == -1) return;
+
+	std::string* newCodes = new std::string[sizeLoyalty - 1];
+	double* newDiscounts = new double[sizeLoyalty - 1];
+
+	for (int i = 0, j = 0; i < sizeLoyalty; i++)
+	{
+		if (i != index)
+		{
+			newCodes[j] = loyaltyCodes[i];
+			newDiscounts[j] = loyaltyDiscounts[i];
+			j++;
+		}
+	}
+
+	delete[] loyaltyCodes;
+	delete[] loyaltyDiscounts;
+
+	loyaltyCodes = newCodes;
+	loyaltyDiscounts = newDiscounts;
+	sizeLoyalty--;
+}
+
+void EditLoyaltyCard(std::string oldCode, std::string newCode, double newDiscount)
+{
+	for (int i = 0; i < sizeLoyalty; i++)
+	{
+		if (loyaltyCodes[i] == oldCode)
+		{
+			loyaltyCodes[i] = newCode;
+			loyaltyDiscounts[i] = newDiscount;
+			return;
+		}
+	}
+}
+
+void AddIDDiscount(int id, double discount)
+{
+	int* newIds = new int[sizeIdDiscounts + 1];
+	double* newDiscounts = new double[sizeIdDiscounts + 1];
+
+	for (int i = 0; i < sizeIdDiscounts; i++)
+	{
+		newIds[i] = idDiscountsArr[i];
+		newDiscounts[i] = idDiscountValues[i];
+	}
+
+	newIds[sizeIdDiscounts] = id;
+	newDiscounts[sizeIdDiscounts] = discount;
+
+	delete[] idDiscountsArr;
+	delete[] idDiscountValues;
+
+	idDiscountsArr = newIds;
+	idDiscountValues = newDiscounts;
+	sizeIdDiscounts++;
+}
+
+void DeleteIDDiscount(int id)
+{
+	int index = -1;
+	for (int i = 0; i < sizeIdDiscounts; i++)
+	{
+		if (idDiscountsArr[i] == id)
+		{
+			index = i;
+			break;
+		}
+	}
+	if (index == -1) return;
+
+	int* newIds = new int[sizeIdDiscounts - 1];
+	double* newDiscounts = new double[sizeIdDiscounts - 1];
+
+	for (int i = 0, j = 0; i < sizeIdDiscounts; i++)
+	{
+		if (i != index)
+		{
+			newIds[j] = idDiscountsArr[i];
+			newDiscounts[j] = idDiscountValues[i];
+			j++;
+		}
+	}
+
+	delete[] idDiscountsArr;
+	delete[] idDiscountValues;
+
+	idDiscountsArr = newIds;
+	idDiscountValues = newDiscounts;
+	sizeIdDiscounts--;
+}
+
+void EditIDDiscount(int id, int newId, double newDiscount)
+{
+	for (int i = 0; i < sizeIdDiscounts; i++)
+	{
+		if (idDiscountsArr[i] == id)
+		{
+			idDiscountsArr[i] = newId;
+			idDiscountValues[i] = newDiscount;
+			return;
+		}
+	}
+}
+
+void LichnoYaSchitayChtoZaEtoNadoDatTOPCoini()
+{
+	std::string choose;
+
+	while (true)
+	{
+		system("cls");
+		std::cout << "I am a Lover of Lavender Rafa without a personal life\n";
+		std::cout << "1 - Добавить карту лояльности\n";
+		std::cout << "2 - Изменить карту лояльности\n";
+		std::cout << "3 - Удалить карту лояльности\n";
+		std::cout << "4 - Добавить скидку по ID товара\n";
+		std::cout << "5 - Изменить скидку по ID товара\n";
+		std::cout << "6 - Удалить скидку по ID товара\n";
+		std::cout << "7 - Назад\n";
+		std::cout << "Ваш выбор: ";
+		Getline(choose);
+
+		if (choose == "1")
+		{
+			std::string code;
+			std::string discStr;
+			double discount = 0;
+			std::cout << "Введите код карты: ";
+			Getline(code);
+			std::cout << "Введите скидку (0.05 для 5%): ";
+			Getline(discStr);
+			if (IsNumber(discStr))
+			{
+				discount = std::stod(discStr);
+				AddLoyaltyCard(code, discount);
+				std::cout << "\nКарта добавлена\n";
+				Sleep(1000);
+			}
+			else
+			{
+				Error();
+			}
+		}
+		else if (choose == "2")
+		{
+			std::string oldCode, newCode, discStr;
+			double discount = 0;
+			std::cout << "Введите текущий код карты: ";
+			Getline(oldCode);
+			std::cout << "Введите новый код карты: ";
+			Getline(newCode);
+			std::cout << "Введите новую скидку: ";
+			Getline(discStr);
+			if (IsNumber(discStr))
+			{
+				discount = std::stod(discStr);
+				EditLoyaltyCard(oldCode, newCode, discount);
+				std::cout << "\nКарта изменена\n";
+				Sleep(1000);
+			}
+			else
+			{
+				Error();
+			}
+		}
+		else if (choose == "3")
+		{
+			std::string code;
+			std::cout << "Введите код карты для удаления: ";
+			Getline(code);
+			DeleteLoyaltyCard(code);
+			std::cout << "\nКарта удалена!\n";
+			Sleep(1000);
+		}
+		else if (choose == "4")
+		{
+			std::string idStr, discStr;
+			int id = 0;
+			double discount = 0;
+			ShowStorage();
+			std::cout << "Введите ID товара: ";
+			Getline(idStr);
+			std::cout << "Введите скидку (0.02 для 2%): ";
+			Getline(discStr);
+			if (IsNumber(idStr) && IsNumber(discStr))
+			{
+				id = std::stoi(idStr);
+				discount = std::stod(discStr);
+				AddIDDiscount(id, discount);
+				std::cout << "\nСкидка добавлена!\n";
+				Sleep(1000);
+			}
+			else
+			{
+				Error();
+			}
+		}
+		else if (choose == "5")
+		{
+			std::string idStr, newIdStr, discStr;
+			int id = 0, newId = 0;
+			double discount = 0;
+			std::cout << "Введите текущий ID товара: ";
+			Getline(idStr);
+			std::cout << "Введите новый ID товара: ";
+			ShowStorage();
+			Getline(newIdStr);
+			std::cout << "Введите новую скидку: ";
+			Getline(discStr);
+			if (IsNumber(idStr) && IsNumber(newIdStr) && IsNumber(discStr))
+			{
+				id = std::stoi(idStr);
+				newId = std::stoi(newIdStr);
+				discount = std::stod(discStr);
+				EditIDDiscount(id, newId, discount);
+				std::cout << "\nСкидка изменена!\n";
+				Sleep(1000);
+			}
+			else
+			{
+				Error();
+			}
+		}
+		else if (choose == "6")
+		{
+			std::string idStr;
+			int id = 0;
+			std::cout << "Введите ID товара для удаления скидки: ";
+			Getline(idStr);
+			if (IsNumber(idStr))
+			{
+				id = std::stoi(idStr);
+				DeleteIDDiscount(id);
+				std::cout << "\nСкидка удалена!\n";
+				Sleep(1000);
+			}
+			else
+			{
+				Error();
+			}
+		}
+		else if (choose == "7")
+		{
+			break;
+		}
+		else
+		{
+			Error();
+		}
+	}
 }
 
 int GetID(int mode)
 {
 	std::string stringID;
-	int result = 0;
+	int result = 0; 
 	int currentSize = 0;
 	if (mode == 0)
 	{
@@ -1028,7 +1687,7 @@ bool IsNumber(std::string &number)
 	}
 	for (int i = 0; i < number.size(); i++)
 	{
-		if (!std::isdigit(number[i]))
+		if (!std::isdigit((unsigned char)number[i]))
 		{
 			return false;
 		}
